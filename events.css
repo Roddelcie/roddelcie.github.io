@@ -42,8 +42,10 @@ main {
   display: flex;
   flex-wrap: wrap;
   justify-content: center; /* Center-align the event blocks */
-  padding: 10px;
   flex-direction: column;
+  flex-grow: 1; /* Make main grow to fill the remaining space */
+  padding: 0; /* Remove padding */
+  margin: 0; /* Remove margin */
   overflow-y: auto; /* Enable vertical scrolling when content overflows */
   padding-top: 20%; /* Add a top margin to push the content below the header */
 }
@@ -67,11 +69,4 @@ main {
 .sticky-header header {
   text-align: center;
   padding: 10px;
-}
-
-iframe.airtable-embed {
-  border: 0;
-  flex-grow: 1; /* Make iframe grow to fill the available space */
-  width: 100%;
-  height: 100%;
 }
