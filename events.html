@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Events Gallery</title>
+    <link rel="stylesheet" type="text/css" href="events.css">
+    <link rel="icon" type="image/x-icon" href="img/favicon.ico">
+</head>
+<body>
+    <div class="sticky-header">
+        <header>
+            <h1>Events</h1>
+        </header>   
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="events.html">Evenementen</a></li>
+                <li><a href="about.html">Over Ons</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <main>
+        <div class="event-section">
+            <h3> Calendar subscription link</h3>
+            <a href="https://calendar.google.com/calendar/ical/feestcie.vu%40gmail.com/public/basic.ics">https://calendar.google.com/calendar/ical/feestcie.vu%40gmail.com/public/basic.ics</a>
+            <br>
+            <a href="https://calendar.google.com/calendar/embed?src=feestcie.vu%40gmail.com&ctz=Europe%2FAmsterdam"  class="button"> Go to online version </a>
+        </div>
+        <div class="event-section upcoming-events">
+            <h2>Upcoming Events</h2>
+            <div class="event-list-container">
+                <div id="upcoming-event-list-left"></div>
+                <div id="upcoming-event-list-right"></div>
+            </div>
+        </div>
+        <div class="event-section past-events">
+            <h2>Past Events</h2>
+            <div id="past-event-list"></div>
+        </div>
+    </main>
+
+    <script>
+        window.addEventListener("scroll", () => {
+            const header = document.querySelector(".sticky-header");
+            if (window.scrollY > 50) {
+                header.classList.add("hidden");
+            } else {
+                header.classList.remove("hidden");
+            }
+        });
+
+        function formatTime(dateTimeString) {
+            const date = new Date(dateTimeString);
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+                timeZone: 'Europe/Amsterdam' // Change to the appropriate time zone
+            };
+            return date.toLocaleString('nl-NL', options);
+        }
+
+        // Define your API key and calendar ID
+        const apiKey = 'AIzaSyD4br-t_xdQt4JF3iyhuxs37CXeQ01He40';
+        const calendarId = 'feestcie.vu@gmail.com';
+
+        // URL to fetch calendar events
+        const url = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events?key=${apiKey}`;
+
+        // Get the current date
+        const currentDate = new Date();
+
+        // Fetch calendar events
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                const events = data.items;
+                events.sort((a, b) => {
+                    const dateA = new Date(a.start.dateTime);
+                    const dateB = new Date(b.start.dateTime);
+                    return dateA - dateB;
+                });
+
+                // Process and display the events
+                let counter = 0;
+                const upcomingEventListLeft = document.getElementById("upcoming-event-list-left");
+                const upcomingEventListRight = document.getElementById("upcoming-event-list-right");
+                const pastEventListContainer = document.getElementById("past-event-list");
+                
+                events.forEach(event => {
+                    const start = new Date(event.start.dateTime);
+
+                    if (start >= currentDate) {
+                        // Upcoming event
+                        const summary = event.summary;
+                        const attachments = event.attachments;
+
+                        // Create elements for the event
+                        const eventItem = document.createElement("div");
+                        eventItem.classList.add("event-container");
+                        const eventTitle = document.createElement("h3");
+                        eventTitle.classList.add("event-title");
+                        const eventStartDate = document.createElement("p");
+                        eventStartDate.classList.add("event-start-date");
+                        const eventImage = document.createElement("img");
+                        eventImage.classList.add("event-image");
+
+                        // Set content for the elements
+                        eventTitle.textContent = summary;
+                        eventStartDate.textContent = `${formatTime(start)}`;
+                        
+                        if (attachments && attachments.length > 0) {
+                            // If there are attachments, check for images and display the first one
+                            const imageAttachment = attachments.find(attachment => attachment.mimeType.startsWith('image/'));
+                            if (imageAttachment) {
+                                const match = imageAttachment.fileUrl.match(/id=([^&]+)/);
+                                const imgID = match[1];
+                                eventImage.src = `https://drive.google.com/uc?export=view&id=${imgID}`;
+                                eventImage.alt = 'Event Image';
+                                eventItem.appendChild(eventImage);
+                            }
+                        }
+
+                        // Append elements to the upcoming event list container
+                        eventItem.appendChild(eventTitle);
+                        eventItem.appendChild(eventStartDate);
+                        // Append elements to the upcoming event list container
+                        if (counter % 2 === 0) {
+                            upcomingEventListLeft.appendChild(eventItem);
+                        } else {
+                            upcomingEventListRight.appendChild(eventItem);
+                        }
+                        counter++;
+                    } else {
+                        // Past event
+                        const summary = event.summary;
+
+                        // Create elements for the past event
+                        const pastEventItem = document.createElement("div");
+                        pastEventItem.classList.add("event-container");
+                        pastEventItem.classList.add("past-event");
+                        const pastEventTitle = document.createElement("h3");
+                        pastEventTitle.classList.add("event-title");
+                        const pastEventStartDate = document.createElement("p");
+                        pastEventStartDate.classList.add("event-start-date");
+
+                        // Set content for the elements
+                        pastEventTitle.textContent = summary;
+                        pastEventStartDate.textContent = `${formatTime(start)}`;
+
+                        // Append elements to the past event list container
+                        pastEventItem.appendChild(pastEventTitle);
+                        pastEventItem.appendChild(pastEventStartDate);
+                        pastEventListContainer.appendChild(pastEventItem);
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching Google Calendar data: ', error);
+            });
+    </script>
+</body>
+</html>
