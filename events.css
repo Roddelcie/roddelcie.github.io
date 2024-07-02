@@ -38,16 +38,6 @@ nav a {
   font-weight: bold;
 }
 
-main {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center; /* Center-align the event blocks */
-  padding: 10px;
-  flex-direction: column;
-  overflow-y: auto; /* Enable vertical scrolling when content overflows */
-  padding-top: 20%; /* Add a top margin to push the content below the header */
-}
-
 iframe.airtable-embed {
   display: flex;
   flex-wrap: wrap;
@@ -57,7 +47,7 @@ iframe.airtable-embed {
   padding: 0; /* Remove padding */
   margin: 0; /* Remove margin */
   overflow-y: auto; /* Enable vertical scrolling when content overflows */
-  padding-top: 20%; /* Add a top margin to push the content below the header */
+  padding-top: 10%; /* Add a top margin to push the content below the header */
 }
 
 
